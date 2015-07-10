@@ -93,7 +93,7 @@ public class MainActivity extends ActionBarActivity {
             /*Toast toast = Toast.makeText(getApplicationContext(), "One " + device.getDeviceName(), Toast.LENGTH_SHORT );
             toast.show();*/
 
-            if(device.getVendorId() == 0x0403 && device.getProductId() == 0x6015)
+            if(device.getVendorId() == 0x0403/* && device.getProductId() == 0x6015*/)
             {
                 if(device.getInterfaceCount() == 1) {
                     usbInterface = device.getInterface(0);
@@ -116,6 +116,8 @@ public class MainActivity extends ActionBarActivity {
 
                 usbManager.requestPermission(qbridge, null);
             }
+            Toast toast2 = Toast.makeText(getApplicationContext(), "tryed open", Toast.LENGTH_SHORT );
+            toast2.show();
 
         }
 
