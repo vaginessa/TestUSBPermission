@@ -1,10 +1,8 @@
 package com.micronet_inc.abest.testusbpermission;
 
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbInterface;
@@ -16,65 +14,21 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Iterator;
 
-import android.serial.*;
 
 public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "UsbPermissionTest";
     private PendingIntent mPermissionIntent;
-    private static int RQS_USB_PERMISSION = 0;
-
-
-    private BroadcastReceiver usbPermissionReceiver = new BroadcastReceiver(){
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(action.equals(ACTION_USB_PERMISSION)){
-
-                synchronized(this){
-                   // UsbDevice usbAccessory = UsbManager.getAccessory(intent);
-
-                    if(intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)){
-                    //    OpenUsbAccessory(usbAccessory);
-
-                        Toast.makeText(MainActivity.this,
-                                "ACTION_USB_PERMISSION accepted",
-                                Toast.LENGTH_LONG).show();
-                    }else{
-                        Toast.makeText(MainActivity.this,
-                                "ACTION_USB_PERMISSION rejected",
-                                Toast.LENGTH_LONG).show();
-                        //finish();
-                    }
-                }
-            }
-        }
-
-    };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //IntentFilter intentFilter = new IntentFilter();
-        //intentFilter.addAction();
-
-        Intent intent_UsbPermission = new Intent(ACTION_USB_PERMISSION);
-        mPermissionIntent = PendingIntent.getBroadcast(this, RQS_USB_PERMISSION,
-                intent_UsbPermission,0);
-        IntentFilter intentFilter_UsbPermission = new IntentFilter(ACTION_USB_PERMISSION);
-        registerReceiver(usbPermissionReceiver, intentFilter_UsbPermission);
-
-
 
     }
 
@@ -108,9 +62,6 @@ public class MainActivity extends ActionBarActivity {
         ((Button)v).setText("Clicked");
         UsbManager usbManager;
         usbManager = (UsbManager)getSystemService(Context.USB_SERVICE);
-
-        TextView textView = (TextView)findViewById(R.id.textview1);
-
 
         //usbManager.getDeviceList();
         HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
@@ -152,54 +103,23 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
-
-
+        Toast toast = Toast.makeText(getApplicationContext(), t, Toast.LENGTH_SHORT );
+            toast.show();
 
         if(null != qbridge) {
             UsbDeviceConnection connection = usbManager.openDevice(qbridge);
 
-            t += "try to open device " + qbridge.getDeviceName() + "\n";
             if(connection == null)
             {
                 mPermissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
 
 
-                synchronized (usbManager) {
-                    usbManager.requestPermission(qbridge, mPermissionIntent);
-                }
+                usbManager.requestPermission(qbridge, null);
             }
-
-            //Toast toast2 = Toast.makeText(getApplicationContext(), "tryed open", Toast.LENGTH_SHORT );
-            //toast2.show();
-
-            t += connection.getSerial() + "\n";
-            int fd = connection.getFileDescriptor();
-
-            t += "fd = " + fd + "\n";
-
-            if(connection.claimInterface(qbridge.getInterface(0), true))
-            {
-                connection.controlTransfer(0x40, 0, 0,0, null, 0,0); // reset
-                connection.controlTransfer(0x40, 0, 2, 0, null, 0,0);
-                connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0,0);
-                connection.controlTransfer(0x40, 0x03, 0x0034, 0, null, 0,0); // 57600
-                connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0,0); // 8n1
-                t += "it seems to talk";
-
-            }
-            else
-            {
-                t+="Cant claim interface\n";
-            }
+            Toast toast2 = Toast.makeText(getApplicationContext(), "tryed open", Toast.LENGTH_SHORT );
+            toast2.show();
 
         }
-
-
-        SerialManager serial;
-
-
-
-        textView.setText(t);
 
 
 /*
