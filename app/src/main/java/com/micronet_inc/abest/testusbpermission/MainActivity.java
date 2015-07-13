@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import android.serial.*;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -171,7 +172,32 @@ public class MainActivity extends ActionBarActivity {
             //Toast toast2 = Toast.makeText(getApplicationContext(), "tryed open", Toast.LENGTH_SHORT );
             //toast2.show();
 
+            t += connection.getSerial() + "\n";
+            int fd = connection.getFileDescriptor();
+
+            t += "fd = " + fd + "\n";
+
+            if(connection.claimInterface(qbridge.getInterface(0), true))
+            {
+                connection.controlTransfer(0x40, 0, 0,0, null, 0,0); // reset
+                connection.controlTransfer(0x40, 0, 2, 0, null, 0,0);
+                connection.controlTransfer(0x40, 0x02, 0x0000, 0, null, 0,0);
+                connection.controlTransfer(0x40, 0x03, 0x0034, 0, null, 0,0); // 57600
+                connection.controlTransfer(0x40, 0x04, 0x0008, 0, null, 0,0); // 8n1
+                t += "it seems to talk";
+
+            }
+            else
+            {
+                t+="Cant claim interface\n";
+            }
+
         }
+
+
+        SerialManager serial;
+
+
 
         textView.setText(t);
 
